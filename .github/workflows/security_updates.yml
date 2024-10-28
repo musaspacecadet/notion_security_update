@@ -28,8 +28,5 @@ jobs:
         env:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-        run: |
-          $Global:NotionSecret = "$env:NOTION_SECRET"
-          $Global:NotionDatabaseId = "$env:NOTION_DATABASE_ID"
-          ./security-updates.ps1
+        run: security-updates.ps1
         shell: pwsh
