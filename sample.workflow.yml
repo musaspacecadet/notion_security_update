@@ -1,0 +1,40 @@
+# .github/workflows/security-updates.yml
+name: Daily Security Updates Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs at 00:00 UTC every day
+  workflow_dispatch:      # Allows manual trigger from GitHub UI
+
+jobs:
+  check-security-updates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up PowerShell
+        uses: PowerShell/PowerShell-Action@v1
+        with:
+          shell: pwsh
+      
+      - name: Install MSRC Security Updates module
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module MSRCSecurityUpdates -Force
+        shell: pwsh
+      
+      - name: Create temp directory
+        run: mkdir -p /tmp
+        shell: bash
+      
+      - name: Run Security Update Check
+        env:
+          NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        run: |
+          $Global:NotionSecret = "$env:NOTION_SECRET"
+          $Global:NotionDatabaseId = "$env:NOTION_DATABASE_ID"
+          ./security-updates.ps1
+        shell: pwsh
